@@ -90,10 +90,12 @@ The app will be available at **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)*
 
 ## 🖼️ Screenshots
 
-> *(Add screenshots of the dashboard, report form, and admin panel here)*
+### HOME PAGE
 <img width="1904" height="1009" alt="Screenshot 2025-08-23 225134" src="https://github.com/user-attachments/assets/98ba39ef-f459-4f0c-af79-7100bc955018" />
+### DASHBOARD
 <img width="1919" height="995" alt="Screenshot 2025-08-23 225153" src="https://github.com/user-attachments/assets/b22900b5-4921-497b-b84a-03c7b3a3684a" />
----<img width="1900" height="1009" alt="Screenshot 2025-08-23 225256" src="https://github.com/user-attachments/assets/e5a2a918-eebb-4569-8daa-73f625e51726" />
+### ISSUE REPORTING
+<img width="1900" height="1009" alt="Screenshot 2025-08-23 225256" src="https://github.com/user-attachments/assets/e5a2a918-eebb-4569-8daa-73f625e51726" />
 
 
 ## 🔮 Future Improvements
