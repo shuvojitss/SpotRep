@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Community Issues</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+
+    <h1 class="title">SpotRep</h1>
+    <div class="right-actions">
+      <a class="button" href="{{ url_for('index') }}">Map</a>
+      <a class="button primary" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <!-- Trigger popup instead of panel -->
+      <a class="button report" href="#" onclick="openReportPopup(); return false;">Report Issue</a>
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-area">
+        {% for category, msg in messages %}
+          <div class="flash {{category}}">{{ msg }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Overlay (background behind popup) -->
+  <div id="overlay" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1999;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease;">
+  </div>
+
+  <!-- Report Popup -->
+  <div id="report-popup" class="report-popup">
+    <form action="{{ url_for('report_issue') }}" method="post" enctype="multipart/form-data">
+      <h2>Report Issue</h2>
+
+      <label>Title
+        <input name="title" required>
+      </label>
+
+      <label>Category
+        <select name="category">
+          <option>Road Issues</option>
+          <option>Lighting</option>
+          <option>Drainage</option>
+          <option>Waste Management</option>
+          <option>Vandalism</option>
+          <option>Other</option>
+        </select>
+      </label>
+
+      <label>Description
+        <textarea name="description" rows="3"></textarea>
+      </label>
+
+      <label>Photo
+        <input type="file" name="photo" accept="image/*">
+      </label>
+
+      <label>Your name
+        <input name="reporter" placeholder="Optional">
+      </label>
+
+      <div class="coords">
+        <input name="lat" id="form-lat" placeholder="Latitude" readonly>
+        <input name="lon" id="form-lon" placeholder="Longitude" readonly>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Submit</button>
+        <button type="button" class="cancel" onclick="closeReportPopup()">Close</button>
+      </div>
+
+      <p class="hint">Place a marker on the map or use current location to set coords before submitting.</p>
+    </form>
+  </div>
+
+  <!-- JS -->
+  <script>
+    function openReportPopup() {
+      document.getElementById('report-popup').classList.add('active');
+      document.getElementById('overlay').style.opacity = "1";
+      document.getElementById('overlay').style.visibility = "visible";
+    }
+
+    function closeReportPopup() {
+      document.getElementById('report-popup').classList.remove('active');
+      document.getElementById('overlay').style.opacity = "0";
+      document.getElementById('overlay').style.visibility = "hidden";
+    }
+
+    // Helper to auto-fill coords and open popup
+    function fillCoords(lat, lon){
+      const la = document.getElementById('form-lat');
+      const lo = document.getElementById('form-lon');
+      if(la) la.value = lat;
+      if(lo) lo.value = lon;
+      openReportPopup();
+    }
+
+    // Allow clicking overlay to close popup
+    document.getElementById('overlay').addEventListener('click', closeReportPopup);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="map-container">
+  <div class="search-box">
+    <input id="search" class="search-input" type="text" placeholder="Search for a place...">
+    <button id="search-btn" class="search-btn">🔍</button>
+    <button id="loc-btn" class="search-btn">📌 My Location</button>
+  </div>
+  <div id="suggestions" class="suggestions" style="display:none;"></div>
+  <div id="map"></div>
+</div>
+
+<script>
+  const map = L.map('map').setView([20.5937,78.9629], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  map.zoomControl.setPosition('bottomright');
+
+  let marker = null;
+  function placeMarker(lat, lon, text){
+    if (marker) map.removeLayer(marker);
+    marker = L.marker([lat, lon]).addTo(map).bindPopup(text || 'Selected location').openPopup();
+    fillCoords(lat, lon);
+  }
+
+  map.on('click', function(e){
+    placeMarker(e.latlng.lat, e.latlng.lng, 'Selected location');
+    map.setView(e.latlng, 15);
+  });
+
+  document.getElementById('loc-btn').addEventListener('click', () => {
+    if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude, lon = pos.coords.longitude;
+      placeMarker(lat, lon, 'Your location');
+      map.setView([lat, lon], 15);
+    }, (err) => alert('Unable to get location: ' + err.message));
+  });
+
+  const searchInput = document.getElementById("search");
+  const suggestionsBox = document.getElementById("suggestions");
+  searchInput.addEventListener("input", async () => {
+    const query = searchInput.value;
+    if (query.length < 3) { suggestionsBox.style.display = "none"; return; }
+    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6`);
+    const data = await res.json();
+    suggestionsBox.innerHTML = "";
+    if (data.features && data.features.length > 0) {
+      suggestionsBox.style.display = "block";
+      data.features.forEach(f => {
+        const item = document.createElement("div");
+        item.className = "suggestion-item";
+        const name = f.properties.name || f.properties.street || f.properties.city || f.properties.country;
+        item.innerText = name + (f.properties.country ? ", " + f.properties.country : "");
+        item.addEventListener("click", () => {
+          const [lon, lat] = f.geometry.coordinates;
+          placeMarker(lat, lon, item.innerText);
+          map.setView([lat, lon], 13);
+          suggestionsBox.style.display = "none";
+          searchInput.value = item.innerText;
+        });
+        suggestionsBox.appendChild(item);
+      });
+    } else {
+      suggestionsBox.style.display = "none";
+    }
+  });
+
+  document.getElementById('search-btn').addEventListener('click', async () => {
+    const q = searchInput.value.trim();
+    if(!q) return;
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
+    const arr = await res.json();
+    if(arr.length){
+      const lat = parseFloat(arr[0].lat), lon = parseFloat(arr[0].lon);
+      placeMarker(lat, lon, arr[0].display_name);
+      map.setView([lat, lon], 13);
+    } else {
+      alert('No results');
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-wrap">
+  <div class="controls">
+    <input class="search-input" placeholder="Search issues..." oninput="filterCards(this.value)">
+    <div class="right"> <span>{{ issues|length }} issues found</span></div>
+  </div>
+
+  <div class="cards-grid" id="cards-grid">
+    {% for issue in issues %}
+    <div class="card">
+      <div class="card-head">
+        <h3>{{ issue['title'] }}</h3>
+        {% if issue['image'] %}
+        <img src="{{ url_for('uploaded_file', filename=issue['image']) }}" class="thumb" alt="photo">
+        {% else %}
+        <div class="thumb blank"></div>
+        {% endif %}
+      </div>
+      <div class="badges">
+        <span class="badge status">{{ issue['status'] }}</span>
+        <span class="badge cat">{{ issue['category'] }}</span>
+      </div>
+      <p class="desc">{{ issue['description'] }}</p>
+      <div class="meta">
+        {% if issue['lat'] and issue['lon'] %}
+          <div>📍 {{ issue['lat']|round(6) }}, {{ issue['lon']|round(6) }}</div>
+        {% endif %}
+        <div>🕒 {{ issue['created_at'] }} </div>
+        <div>👤 {{ issue['reporter'] or 'Anonymous' }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+function filterCards(q){
+  q = q.toLowerCase();
+  document.querySelectorAll('#cards-grid .card').forEach(card=>{
+    const text = card.innerText.toLowerCase();
+    card.style.display = text.indexOf(q) === -1 ? 'none' : 'block';
+  });
+}
+</script>
+{% endblock %}
