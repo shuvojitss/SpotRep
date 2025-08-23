@@ -1,4 +1,4 @@
-# 🌍 Community Reporter
+# 🌍 Spot Alert - Community Reporter
 
 A **Flask-based web application** that empowers communities to report and track local issues like potholes, broken streetlights, garbage dumps, and more. Citizens can quickly submit reports with location, category, and optional images. Administrators can view and manage all reports from a central dashboard.
 
